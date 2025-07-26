@@ -67,6 +67,12 @@ class _HomePageState extends State<HomePage> {
 
   void equalPressed() {
     String finalExpression = _controllerInput.text;
+
+    // Exit early to avoid parsing empty input
+    if (finalExpression.isEmpty) {
+      return;
+    }
+
     finalExpression = finalExpression.replaceAll('x', '*');
     finalExpression = finalExpression.replaceAll('ANS', _lastResult);
 
