@@ -93,6 +93,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void dispose() {
+    _controllerInput.dispose();
+    _controllerResult.dispose();
+    _inputFocusNode.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
