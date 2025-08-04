@@ -1,5 +1,7 @@
-import 'package:calculatorapp/widgets/buttons.dart';
+import 'package:calculatorapp/widgets/input_field.dart';
 import 'package:flutter/material.dart';
+import 'package:calculatorapp/classes/calculator_buttons.dart';
+import 'package:calculatorapp/widgets/gridview_builder.dart';
 import 'package:math_expressions/math_expressions.dart';
 
 
@@ -19,24 +21,13 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _controllerInput = TextEditingController();
   final TextEditingController _controllerResult = TextEditingController();
 
-  final List buttonNames = [
-    '(', ')', 'ANS', '%',
-    '7', '8', '9', '/',
-    '6', '5', '4', 'x',
-    '3', '2', '1', '-',
-    '.', '0', '=', '+',
-  ];
-  final List operators = [
-    '/', 'x', '-', '+',
-  ];
-  final List specialCharacters = [
-    '(', ')', 'ANS', '%',
-  ];
+  // Get the buttons list from the CalculatorButtons class.
+  List _allButtons = CalculatorButtons().allButtons;
 
   void calculatorButtonPressed (index) {
     final text = _controllerInput.text;
     final int cursorPosition = _controllerInput.selection.baseOffset;
-    final newText = buttonNames[index];
+    final newText = _allButtons[index];
 
     if (cursorPosition < 0) {
       _controllerInput.text += newText;
@@ -104,7 +95,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Calculator'),
+        title: const Text('Calculator'),
         titleTextStyle: TextStyle(
           fontSize: 24,
           color: Colors.black,
@@ -116,33 +107,20 @@ class _HomePageState extends State<HomePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(height: 50,),
+            const SizedBox(height: 50,),
             Padding(
               padding: const EdgeInsets.all(16.0),
               // the user input field
-              child: TextField(
-                controller: _controllerInput,
-                // keeps the phone keyboard from appearing
-                focusNode: _inputFocusNode,
-                readOnly: true,
-                showCursor: true,
-                enableInteractiveSelection: true,
-
-                textAlign: TextAlign.right,
-                style: TextStyle(fontSize: 30),
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: '0',
-                  hintStyle: TextStyle(
-                    fontWeight: FontWeight.w300
-                  ),
+              child: InputFieldWidget(
+                inputFocusNode: _inputFocusNode, 
+                controller: _controllerInput
                 ),
-              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Divider(),
             ),
+            
             Padding(
               padding: const EdgeInsets.only(bottom: 16, right: 16, left: 16),
               // the text field that shows the result of the calculation
@@ -170,7 +148,7 @@ class _HomePageState extends State<HomePage> {
                         _controllerResult.clear();
                       });
                     },
-                    child: Icon(
+                    child: const Icon(
                       Icons.clear,
                       color: Colors.red,
                       size: 24
@@ -186,57 +164,16 @@ class _HomePageState extends State<HomePage> {
                           _deleteChar();
                         });
                       },
-                      child: Icon(Icons.backspace, color: Colors.red,)),
+                      child: const Icon(Icons.backspace, color: Colors.red,)),
                 )
               ],
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
-              // creates the calculator buttons
-              child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: buttonNames.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8
-                  ),
-                  itemBuilder: (context, index) {
-                    // makes the operator buttons white
-                    if (operators.contains(buttonNames[index])) {
-                      return CalculatorButton(
-                        buttonName: buttonNames[index],
-                        buttonColor: Colors.white,
-                        buttonPressed: () => calculatorButtonPressed(index)
-
-                      );
-                    }
-                    // makes the special characters buttons blue
-                    else if (specialCharacters.contains(buttonNames[index])) {
-                      return CalculatorButton(
-                        buttonName: buttonNames[index],
-                        characterColor: Colors.white,
-                        buttonColor: Colors.lightBlueAccent,
-                        buttonPressed: () => calculatorButtonPressed(index)
-                      );
-                    }
-                    // makes the equals button green
-                    else {
-                      return CalculatorButton(
-                        buttonName: buttonNames[index],
-                        characterColor: Colors.white,
-                        buttonColor: Colors.green.shade300,
-                        buttonPressed: () {
-                          if (buttonNames[index] == '=') {
-                              equalPressed();
-                          } else {
-                            calculatorButtonPressed(index);
-                          }
-                        },
-                      );
-                    }
-                  }),
+              // Creates the calculator buttons
+              child: GridviewBuilderWidget(
+                equalPressed: equalPressed, 
+                calculatorButtonPressed: calculatorButtonPressed),
             )
           ],
         ),
